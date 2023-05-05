@@ -114,8 +114,8 @@ def main(spark, userID):
 
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
-    train.show()
-    validation.show()
+    #train.show()
+    #validation.show()
 
 
     # Build the recommendation model using ALS on the training data
