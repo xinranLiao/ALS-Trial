@@ -115,6 +115,7 @@ def main(spark, userID):
         from
             (Select *, COALESCE(recording_mbid, recording_msid) as unique_id
             from tracks) T1
+        group by unique_id
     """)
     track_numeric_id.show()
     
