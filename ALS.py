@@ -46,7 +46,7 @@ def main(spark, userID):
 
     # reassigning id to the tracks 1. for ALS parsing (only take numerical item id) 2. handle same item with different msid
     track_numeric_id = spark.sql("""
-        Select *, dense_rank() over(ORDER BY unique_id) as new_id
+        Select *, dense_rank() over(ORDER BY unique_id) as track_new_id
         from
             (Select *, COALESCE(recording_mbid, recording_msid) as unique_id
             from tracks) T1
@@ -55,10 +55,10 @@ def main(spark, userID):
 
 
     interaction_new_id = spark.sql("""
-                    select *
-                    From train_interaction 
-                    Left Join track_numeric_id
-                    On train_interaction.recording_msid = track_numeric_id.recording_msid
+                    select i.user_id, i.recording_msid, t.track_new_id
+                    From train_interaction i
+                    Left Join track_numeric_id t
+                    On i.recording_msid = t.recording_msid
         """)
     interaction_new_id.show()
 
