@@ -122,10 +122,10 @@ def main(spark, userID):
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
     als = ALS(maxIter=5, regParam=0.01, userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
               coldStartStrategy="drop")
-    model = als.fit(training)
+    model = als.fit(train)
 
     # Evaluate the model by computing the RMSE on the test data
-    predictions = model.transform(test)
+    predictions = model.transform(validation)
     evaluator = RegressionEvaluator(metricName="rmse", labelCol="rating",
                                     predictionCol="prediction")
     rmse = evaluator.evaluate(predictions)
@@ -134,14 +134,14 @@ def main(spark, userID):
     # Generate top 10 movie recommendations for each user
     userRecs = model.recommendForAllUsers(10)
     # Generate top 10 user recommendations for each movie
-    movieRecs = model.recommendForAllItems(10)
+    trackRecs = model.recommendForAllItems(10)
 
     # Generate top 10 movie recommendations for a specified set of users
     users = ratings.select(als.getUserCol()).distinct().limit(3)
     userSubsetRecs = model.recommendForUserSubset(users, 10)
     # Generate top 10 user recommendations for a specified set of movies
-    movies = ratings.select(als.getItemCol()).distinct().limit(3)
-    movieSubSetRecs = model.recommendForItemSubset(movies, 10)
+    tracks = ratings.select(als.getItemCol()).distinct().limit(3)
+    trackSubSetRecs = model.recommendForItemSubset(movies, 10)
 
 
 
