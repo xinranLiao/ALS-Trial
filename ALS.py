@@ -41,7 +41,7 @@ def main(spark, userID):
     #train_interaction.write.parquet(f'hdfs:/user/yz4315_nyu_edu/interactions_trainV2_small.parquet')
     #validation_interaction.write.parquet(f'hdfs:/user/yz4315_nyu_edu/interactions_validation_small.parquet')
     #train_interaction = spark.read.csv('data_test.csv', schema='user_id INT, recording_msid STRING')
-    train_interaction.createOrReplaceTempView('train_interaction')
+    interactions.createOrReplaceTempView('train_interaction')
     tracks.createOrReplaceTempView('tracks')
     user_rank = spark.sql("""
                    select user_id,recording_msid, count_pop/count_total as ranking
