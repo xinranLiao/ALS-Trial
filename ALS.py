@@ -61,7 +61,7 @@ def main(spark, userID):
                     Left Join track_numeric_id t
                     On i.recording_msid = t.recording_msid
         """)
-    interaction_new_id.show()
+    #interaction_new_id.show()
 
     user_rank = spark.sql("""
                    select user_id,track_new_id, count_pop/count_total as ranking
@@ -69,7 +69,7 @@ def main(spark, userID):
                    (SELECT distinct user_id,track_new_id,
                            count(track_new_id) over(partition by user_id) as count_total,
                            count(track_new_id) over(partition by user_id, track_new_id) as count_pop
-                    from train_interaction) T
+                    from interaction_new_id) T
                     order by user_id asc, ranking desc
 
         """)
