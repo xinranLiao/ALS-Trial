@@ -42,6 +42,7 @@ def main(spark, userID):
     #validation_interaction.write.parquet(f'hdfs:/user/yz4315_nyu_edu/interactions_validation_small.parquet')
     #train_interaction = spark.read.csv('data_test.csv', schema='user_id INT, recording_msid STRING')
     train_interaction.createOrReplaceTempView('train_interaction')
+    tracks.createOrReplaceTempView('tracks')
     user_rank = spark.sql("""
                    select user_id,recording_msid, count_pop/count_total as ranking
                    from
@@ -73,7 +74,7 @@ def main(spark, userID):
         ) T3
         ORDER BY user_id ASC, normalized_ranking DESC
         """)
-    user_norm_rank.show()
+    #user_norm_rank.show()
     
     '''
     
@@ -106,9 +107,19 @@ def main(spark, userID):
     # Generate top 10 user recommendations for a specified set of movies
     movies = ratings.select(als.getItemCol()).distinct().limit(3)
     movieSubSetRecs = model.recommendForItemSubset(movies, 10)
+
 '''
+
+    track_numeric_id = spark.sql("""
+        Select *, COALESCE(recording_mbid, recording_msid)
+        from tracks
     
+
+
+
+    """) 
     
+    track_numeric_id.show()
     
 
 
