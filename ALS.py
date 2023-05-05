@@ -45,6 +45,7 @@ def main(spark, userID):
     tracks.createOrReplaceTempView('tracks')
 
     # reassigning id to the tracks 1. for ALS parsing (only take numerical item id) 2. handle same item with different msid
+    
     track_numeric_id = spark.sql("""
         Select *, dense_rank() over(ORDER BY unique_id) as track_new_id
         from
@@ -52,7 +53,7 @@ def main(spark, userID):
             from tracks) T1
     """)
     # track_numeric_id.show()
-
+    track_numeric_id.createOrReplaceTempView('track_numeric_id')
 
     interaction_new_id = spark.sql("""
                     select i.user_id, i.recording_msid, t.track_new_id
