@@ -64,11 +64,11 @@ def main(spark, userID):
     interaction_new_id.show()
 
     user_rank = spark.sql("""
-                   select user_id,recording_msid, count_pop/count_total as ranking
+                   select user_id,track_new_id, count_pop/count_total as ranking
                    from
-                   (SELECT distinct user_id,recording_msid,
-                           count(recording_msid) over(partition by user_id) as count_total,
-                           count(recording_msid) over(partition by user_id, recording_msid) as count_pop
+                   (SELECT distinct user_id,track_new_id,
+                           count(track_new_id) over(partition by user_id) as count_total,
+                           count(track_new_id) over(partition by user_id, track_new_id) as count_pop
                     from train_interaction) T
                     order by user_id asc, ranking desc
 
@@ -76,25 +76,25 @@ def main(spark, userID):
     #ser_rank.show()
     
     user_norm_rank = spark.sql("""
-            SELECT user_id, recording_msid, ranking, normalized_ranking
+            SELECT user_id, track_new_id, ranking, normalized_ranking
             FROM (
-            SELECT user_id, recording_msid, ranking,
+            SELECT user_id, track_new_id, ranking,
                    (ranking - min_ranking) / (max_ranking - min_ranking) as normalized_ranking
             FROM (
-                SELECT user_id, recording_msid, count_pop / count_total as ranking,
+                SELECT user_id, track_new_id, count_pop / count_total as ranking,
                        MIN(count_pop / count_total) OVER (PARTITION BY user_id) as min_ranking,
                        MAX(count_pop / count_total) OVER (PARTITION BY user_id) as max_ranking
                 FROM (
-                    SELECT DISTINCT user_id, recording_msid,
-                           COUNT(recording_msid) OVER (PARTITION BY user_id) as count_total,
-                           COUNT(recording_msid) OVER (PARTITION BY user_id, recording_msid) as count_pop
-                    FROM train_interaction
+                    SELECT DISTINCT user_id, track_new_id,
+                           COUNT(track_new_id) OVER (PARTITION BY user_id) as count_total,
+                           COUNT(track_new_id) OVER (PARTITION BY user_id, track_new_id) as count_pop
+                    FROM interaction_new_id
                 ) T1
             ) T2
         ) T3
         ORDER BY user_id ASC, normalized_ranking DESC
         """)
-    #user_norm_rank.show()
+    user_norm_rank.show()
     
     '''
     
