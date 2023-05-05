@@ -101,6 +101,7 @@ def main(spark, userID):
     
     
     #preprocess split
+    df = user_norm_rank
     user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_tracks")
     df = df.join(user_counts, on="user_id")
     df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("user_id")))
