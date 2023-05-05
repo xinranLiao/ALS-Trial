@@ -95,18 +95,34 @@ def main(spark, userID):
         ) T3
         ORDER BY user_id ASC, normalized_ranking DESC
         """)
-    user_norm_rank.show()
+    # user_norm_rank.show()
     
-    '''
+ 
     
-    #ratingsRDD = user_norm_rank.map(lambda p: Row(userId=int(p[0]), movieId=int(p[1]),
-    #                                     rating=float(p[2]), timestamp=long(p[3])))
-    #ratings = spark.createDataFrame(user_norm_rank)
-    (training, test) = user_norm_rank.randomSplit([0.8, 0.2])
+    
+    #preprocess split
+    df = user_norm_rank.groupBy("track_new_id").count().withColumnRenamed("count", "cnt_users")
+    df = df.filter(col("cnt_users") > 5).drop("cnt_users")
+    df = df.join(train_interaction, on="track_new_id")
+    
+    user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_interactions")
+    df = df.join(user_counts, on="user_id")
+    df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("user_id")))
+    df = df.withColumn("split_threshold", (col("total_interactions") * 0.8).cast("integer"))
+    df = df.withColumn("dataset", when(col("user_index") <= col("split_threshold"), "train").otherwise("validation"))
+    df = df.drop("total_interactions", "user_index", "split_threshold")
+
+    train = df.filter(col("dataset") == "train").drop("dataset")
+    validation = df.filter(col("dataset") == "validation").drop("dataset")
+    train.show()
+    validation.show()
+    
+
+'''
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
-    als = ALS(maxIter=5, regParam=0.01, userCol="user_id", itemCol="recording_msid", ratingCol="normalized_ranking",
+    als = ALS(maxIter=5, regParam=0.01, userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
               coldStartStrategy="drop")
     model = als.fit(training)
 
@@ -128,8 +144,8 @@ def main(spark, userID):
     # Generate top 10 user recommendations for a specified set of movies
     movies = ratings.select(als.getItemCol()).distinct().limit(3)
     movieSubSetRecs = model.recommendForItemSubset(movies, 10)
-
 '''
+
 
     
     
