@@ -101,24 +101,18 @@ def main(spark, userID):
     
     
     #preprocess split
-    df = user_norm_rank.groupBy("track_new_id").count().withColumnRenamed("count", "cnt_users")
-    df = df.filter(col("cnt_users") > 5).drop("cnt_users")
-    df = df.join(train_interaction, on="track_new_id")
-    
-    user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_interactions")
+    user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_tracks")
     df = df.join(user_counts, on="user_id")
     df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("user_id")))
-    df = df.withColumn("split_threshold", (col("total_interactions") * 0.8).cast("integer"))
+    df = df.withColumn("split_threshold", (col("total_tracks") * 0.8).cast("integer"))
     df = df.withColumn("dataset", when(col("user_index") <= col("split_threshold"), "train").otherwise("validation"))
-    df = df.drop("total_interactions", "user_index", "split_threshold")
+    df = df.drop("total_tracks", "user_index", "split_threshold")
 
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
     train.show()
     validation.show()
-    
 
-'''
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
@@ -144,7 +138,7 @@ def main(spark, userID):
     # Generate top 10 user recommendations for a specified set of movies
     movies = ratings.select(als.getItemCol()).distinct().limit(3)
     movieSubSetRecs = model.recommendForItemSubset(movies, 10)
-'''
+
 
 
     
