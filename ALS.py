@@ -62,6 +62,7 @@ def main(spark, userID):
                     On i.recording_msid = t.recording_msid
         """)
     #interaction_new_id.show()
+    interaction_new_id.createOrReplaceTempView('interaction_new_id')
 
     user_rank = spark.sql("""
                    select user_id,track_new_id, count_pop/count_total as ranking
