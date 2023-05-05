@@ -43,6 +43,25 @@ def main(spark, userID):
     #train_interaction = spark.read.csv('data_test.csv', schema='user_id INT, recording_msid STRING')
     interactions.createOrReplaceTempView('train_interaction')
     tracks.createOrReplaceTempView('tracks')
+
+    # reassigning id to the tracks 1. for ALS parsing (only take numerical item id) 2. handle same item with different msid
+    track_numeric_id = spark.sql("""
+        Select *, dense_rank() over(ORDER BY unique_id) as new_id
+        from
+            (Select *, COALESCE(recording_mbid, recording_msid) as unique_id
+            from tracks) T1
+    """)
+    # track_numeric_id.show()
+
+
+    interaction_new_id = spark.sql("""
+                    select *
+                    From train_interaction 
+                    Left Join track_numeric_id
+                    On train_interaction.recording_msid = track_numeric_id.recording_msid
+        """)
+    interaction_new_id.show()
+
     user_rank = spark.sql("""
                    select user_id,recording_msid, count_pop/count_total as ranking
                    from
@@ -110,13 +129,7 @@ def main(spark, userID):
 
 '''
 
-    track_numeric_id = spark.sql("""
-        Select *, dense_rank() over(ORDER BY unique_id) as new_id
-        from
-            (Select *, COALESCE(recording_mbid, recording_msid) as unique_id
-            from tracks) T1
-    """)
-    track_numeric_id.show()
+    
     
 
 
