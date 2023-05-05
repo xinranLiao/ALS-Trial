@@ -111,11 +111,10 @@ def main(spark, userID):
 '''
 
     track_numeric_id = spark.sql("""
-        Select *, row_number() over(ORDER BY unique_id) as new_id
+        Select *, dense_rank() over(ORDER BY unique_id) as new_id
         from
             (Select *, COALESCE(recording_mbid, recording_msid) as unique_id
             from tracks) T1
-        group by unique_id
     """)
     track_numeric_id.show()
     
