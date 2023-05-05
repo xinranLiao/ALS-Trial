@@ -18,6 +18,9 @@ from pyspark.mllib.evaluation import RankingMetrics
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.recommendation import ALS
+from pyspark.sql.functions import col, rand, row_number, when
+from pyspark.sql.window import Window
+
 
 def main(spark, userID):
     '''Main routine for Lab Solutions
