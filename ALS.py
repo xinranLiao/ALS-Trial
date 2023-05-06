@@ -127,7 +127,8 @@ def main(spark, userID):
     #validation.show()
     #train.na.drop()
     train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train.parquet')
-    validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet') 
+    validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
+    ranking = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank.parquet')
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
@@ -148,10 +149,10 @@ def main(spark, userID):
     trackRecs = model.recommendForAllItems(10)
 
     # Generate top 10 movie recommendations for a specified set of users
-    users = ratings.select(als.getUserCol()).distinct().limit(3)
+    users = ranking.select(als.getUserCol()).distinct().limit(3)
     userSubsetRecs = model.recommendForUserSubset(users, 10)
     # Generate top 10 user recommendations for a specified set of movies
-    tracks = ratings.select(als.getItemCol()).distinct().limit(3)
+    tracks = ranking.select(als.getItemCol()).distinct().limit(3)
     trackSubSetRecs = model.recommendForItemSubset(movies, 10)
 
 
