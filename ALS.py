@@ -97,6 +97,7 @@ def main(spark, userID):
             ) T2
         ) T3
         ORDER BY user_id ASC, normalized_ranking DESC
+        WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL
         """)
     # user_norm_rank.show()
     
@@ -124,7 +125,7 @@ def main(spark, userID):
     
     #train.show()
     #validation.show()
-    train.na.drop()
+    #train.na.drop()
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
