@@ -153,7 +153,7 @@ def main(spark, userID):
     userSubsetRecs = model.recommendForUserSubset(users, 10)
     # Generate top 10 user recommendations for a specified set of movies
     tracks = ranking.select(als.getItemCol()).distinct().limit(3)
-    trackSubSetRecs = model.recommendForItemSubset(movies, 10)
+    trackSubSetRecs = model.recommendForItemSubset(tracks, 10)
 
 
 
