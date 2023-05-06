@@ -116,7 +116,7 @@ def main(spark, userID):
     validation = df.filter(col("dataset") == "validation").drop("dataset")
     #train.show()
     #validation.show()
-
+    train.na.drop()
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
