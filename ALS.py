@@ -28,7 +28,7 @@ def main(spark, userID):
     ----------
     spark : SparkSession object
     userID : string, userID of student to find files in HDFS
-    '''
+    
     tracks = spark.read.parquet(f'hdfs:/user/bm106_nyu_edu/1004-project-2023/tracks_train_small.parquet')
     #users = spark.read.parquet(f'hdfs:/user/bm106_nyu_edu/1004-project-2023/users_train_small.parquet')
     interactions = spark.read.parquet(f'hdfs:/user/bm106_nyu_edu/1004-project-2023/interactions_train_small.parquet')
@@ -122,10 +122,12 @@ def main(spark, userID):
     
     validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
     print("ALS_validation.parquet complete")
-    
+    '''
     #train.show()
     #validation.show()
     #train.na.drop()
+    train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train.parquet')
+    validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet') 
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
