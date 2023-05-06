@@ -126,7 +126,7 @@ def main(spark, userID):
 
     # Evaluate the model by computing the RMSE on the test data
     predictions = model.transform(validation)
-    evaluator = RegressionEvaluator(metricName="rmse", labelCol="rating",
+    evaluator = RegressionEvaluator(metricName="rmse", labelCol="normalized_ranking",
                                     predictionCol="prediction")
     rmse = evaluator.evaluate(predictions)
     print("Root-mean-square error = " + str(rmse))
