@@ -100,7 +100,8 @@ def main(spark, userID):
         """)
     # user_norm_rank.show()
     
- 
+    user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank.parquet')
+    print("user_norm_rank.parquet complete")
     
     
     #preprocess split
@@ -114,6 +115,13 @@ def main(spark, userID):
 
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
+    
+    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train.parquet')
+    print("ALS_train.parquet complete")
+    
+    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
+    print("ALS_validation.parquet complete")
+    
     #train.show()
     #validation.show()
     train.na.drop()
