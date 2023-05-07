@@ -144,9 +144,9 @@ def main(spark, userID):
     print("Root-mean-square error = " + str(rmse))
 
     # Generate top 10 movie recommendations for each user
-    userRecs = model.recommendForAllUsers(10)
+    userRecs = model.recommendForAllUsers(100)
     # Generate top 10 user recommendations for each movie
-    trackRecs = model.recommendForAllItems(10)
+    trackRecs = model.recommendForAllItems(100)
 
     # Generate top 10 movie recommendations for a specified set of users
     users = ranking.select(als.getUserCol()).distinct().limit(3)
