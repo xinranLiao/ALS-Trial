@@ -155,10 +155,47 @@ def main(spark, userID):
     tracks = ranking.select(als.getItemCol()).distinct().limit(3)
     trackSubSetRecs = model.recommendForItemSubset(tracks, 100)
 
+    # meanAP and NCDG
+    from pyspark.mllib.evaluation import RankingMetrics
+
+    # Prepare the true labels
+    true_labels = (
+        validation
+        .groupBy("user_id")
+        .agg(collect_list("track_new_id").alias("true_tracks"))
+        .select("user_id", "true_tracks")
+    )
+
+    # Get the top k recommendations for each user
+    k = 100
+    user_recs = model.recommendForAllUsers(k).select("user_id", "recommendations.track_new_id")
+
+    # Join the true labels with the recommendations
+    predictions_and_labels = (
+        true_labels
+        .join(user_recs, on="user_id")
+        .select("track_new_id", "true_tracks")
+    )
+
+    # Convert the DataFrame to an RDD
+    predictions_and_labels_rdd = predictions_and_labels.rdd.map(tuple)
+
+    # Initialize RankingMetrics with the RDD of (predicted, true) label pairs
+    metrics = RankingMetrics(predictions_and_labels_rdd)
+
+    # Calculate Mean Average Precision (MAP)
+    mean_ap = metrics.meanAveragePrecision
+    print("Mean Average Precision (MAP) = ", mean_ap)
+
+    # Calculate Normalized Discounted Cumulative Gain (NDCG) at k
+    ndcg_at_k = metrics.ndcgAt(k)
+    print(f"Normalized Discounted Cumulative Gain (NDCG) at {k} = ", ndcg_at_k)
 
 
-    
-    
+
+
+        
+        
 
 
 # In[37]:
