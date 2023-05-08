@@ -20,7 +20,7 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.recommendation import ALS
 from pyspark.sql.functions import col, rand, row_number, when
 from pyspark.sql.window import Window
-
+import itertools
 
 def main(spark, userID):
     '''Main routine for Lab Solutions
@@ -130,68 +130,97 @@ def main(spark, userID):
     validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
     ranking = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank.parquet')
 
-    # Build the recommendation model using ALS on the training data
-    # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
-    als = ALS(maxIter=5, regParam=0.01, userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
-              coldStartStrategy="drop")
-    model = als.fit(train)
+    # hyperparameter tuning
+    regs = [0.1, 10, 100, 1000]
+    rs = [50, 100, 150]
+    alphas = [0.1, 10, 100, 1000]
+    hyperparams = [regs, rs, alphas]
+    hp_list = list(itertools.product(*hyperparams))
+    count = 0
+    
+    best_ndcg = -100
+    best_parameter_ndcg = []
+    best_meanAP = -100
+    best_parameter_MAP = []
+ 
+    for hp in hp_list:
+        count += 1
+        print('total:', len(hp_list), 'currently at:', count)
+        
 
-    # Evaluate the model by computing the RMSE on the test data
-    predictions = model.transform(validation)
-    evaluator = RegressionEvaluator(metricName="rmse", labelCol="normalized_ranking",
-                                    predictionCol="prediction")
-    rmse = evaluator.evaluate(predictions)
-    print("Root-mean-square error = " + str(rmse))
+        # Build the recommendation model using ALS on the training data
+        # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
+        als = ALS(regParam=hp[0], rank = hp[1], alpha= hp[2],
+                  userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
+                  coldStartStrategy="drop")
+        model = als.fit(train)
 
-    # Generate top 10 movie recommendations for each user
-    userRecs = model.recommendForAllUsers(100)
-    # Generate top 10 user recommendations for each movie
-    trackRecs = model.recommendForAllItems(100)
+        # Evaluate the model by computing the RMSE on the test data
+        predictions = model.transform(validation)
+        evaluator = RegressionEvaluator(metricName="rmse", labelCol="normalized_ranking",
+                                        predictionCol="prediction")
+        rmse = evaluator.evaluate(predictions)
+        print("Root-mean-square error = " + str(rmse))
 
-    # Generate top 10 movie recommendations for a specified set of users
-    users = ranking.select(als.getUserCol()).distinct()
-    userSubsetRecs = model.recommendForUserSubset(users, 100)
-    # Generate top 10 user recommendations for a specified set of movies
-    tracks = ranking.select(als.getItemCol()).distinct()
-    trackSubSetRecs = model.recommendForItemSubset(tracks, 100)
+        # Generate top 10 movie recommendations for each user
+        userRecs = model.recommendForAllUsers(100)
+        # Generate top 10 user recommendations for each movie
+        trackRecs = model.recommendForAllItems(100)
 
-    # meanAP and NCDG
-    from pyspark.mllib.evaluation import RankingMetrics
+        # Generate top 10 movie recommendations for a specified set of users
+        users = ranking.select(als.getUserCol()).distinct()
+        userSubsetRecs = model.recommendForUserSubset(users, 100)
+        # Generate top 10 user recommendations for a specified set of movies
+        tracks = ranking.select(als.getItemCol()).distinct()
+        trackSubSetRecs = model.recommendForItemSubset(tracks, 100)
 
-    # Prepare the true labels
-    true_labels = (
-        validation
-        .groupBy("user_id")
-        .agg(collect_list("track_new_id").alias("true_tracks"))
-        .select("user_id", "true_tracks")
-    )
+        # meanAP and NCDG
+        from pyspark.mllib.evaluation import RankingMetrics
 
-    # Get the top k recommendations for each user
-    k = 100
-    user_recs = model.recommendForAllUsers(k).select("user_id", "recommendations.track_new_id")
+        # Prepare the true labels
+        true_labels = (
+            validation
+            .groupBy("user_id")
+            .agg(collect_list("track_new_id").alias("true_tracks"))
+            .select("user_id", "true_tracks")
+        )
 
-    # Join the true labels with the recommendations
-    predictions_and_labels = (
-        true_labels
-        .join(user_recs, on="user_id")
-        .select("track_new_id", "true_tracks")
-    )
+        # Get the top k recommendations for each user
+        k = 100
+        user_recs = model.recommendForAllUsers(k).select("user_id", "recommendations.track_new_id")
 
-    # Convert the DataFrame to an RDD
-    predictions_and_labels_rdd = predictions_and_labels.rdd.map(tuple)
+        # Join the true labels with the recommendations
+        predictions_and_labels = (
+            true_labels
+            .join(user_recs, on="user_id")
+            .select("track_new_id", "true_tracks")
+        )
 
-    # Initialize RankingMetrics with the RDD of (predicted, true) label pairs
-    metrics = RankingMetrics(predictions_and_labels_rdd)
+        # Convert the DataFrame to an RDD
+        predictions_and_labels_rdd = predictions_and_labels.rdd.map(tuple)
 
-    # Calculate Mean Average Precision (MAP)
-    mean_ap = metrics.meanAveragePrecision
-    print("Mean Average Precision (MAP) = ", mean_ap)
+        # Initialize RankingMetrics with the RDD of (predicted, true) label pairs
+        metrics = RankingMetrics(predictions_and_labels_rdd)
 
-    # Calculate Normalized Discounted Cumulative Gain (NDCG) at k
-    ndcg_at_k = metrics.ndcgAt(k)
-    print(f"Normalized Discounted Cumulative Gain (NDCG) at {k} = ", ndcg_at_k)
+        # Calculate Mean Average Precision (MAP)
+        mean_ap = metrics.meanAveragePrecision
+        #print("Mean Average Precision (MAP) = ", mean_ap)
 
+        # Calculate Normalized Discounted Cumulative Gain (NDCG) at k
+        ndcg_at_k = metrics.ndcgAt(k)
+        #print(f"Normalized Discounted Cumulative Gain (NDCG) at {k} = ", ndcg_at_k)
 
+        if ndcg_at_k > best_ndcg:
+            best_ndcg = ndcg_at_k
+            best_parameter_ndcg = hp
+        if mean_ap > best_meanAP:
+            best_meanAP = mean_ap
+            best_parameter_MAP = hp
+        print('current best parameter sets:', best_parameter_ndcg, 'with best ndcg@100:', best_ndcg)
+        print('current best parameter sets:', best_parameter_MAP, 'with best meanAP@100:', best_meanAP)
+            
+    print('Parameter setting with best performance:', best_parameter_ndcg, 'with ndcg@100:', best_ndcg)
+    print('Parameter setting with best performance:', best_parameter_MAP, 'with meanAP@100:', best_meanAP)
 
 
         
