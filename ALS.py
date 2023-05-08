@@ -155,13 +155,20 @@ def main(spark, userID):
                   coldStartStrategy="drop")
         model = als.fit(train)
 
-        # Evaluate the model by computing the RMSE on the test data
+
+        '''
         predictions = model.transform(validation)
+
+        
+        # Evaluate the model by computing the RMSE on the test data
+        
+        
         evaluator = RegressionEvaluator(metricName="rmse", labelCol="normalized_ranking",
                                         predictionCol="prediction")
         rmse = evaluator.evaluate(predictions)
         print("Root-mean-square error = " + str(rmse))
 
+        
         # Generate top 10 movie recommendations for each user
         userRecs = model.recommendForAllUsers(100)
         # Generate top 10 user recommendations for each movie
@@ -173,10 +180,11 @@ def main(spark, userID):
         # Generate top 10 user recommendations for a specified set of movies
         tracks = ranking.select(als.getItemCol()).distinct()
         trackSubSetRecs = model.recommendForItemSubset(tracks, 100)
-
+        '''
+        
         # meanAP and NCDG
         from pyspark.mllib.evaluation import RankingMetrics
-
+        
         # Prepare the true labels
         true_labels = (
             validation
