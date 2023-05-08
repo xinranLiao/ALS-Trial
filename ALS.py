@@ -149,10 +149,10 @@ def main(spark, userID):
     trackRecs = model.recommendForAllItems(100)
 
     # Generate top 10 movie recommendations for a specified set of users
-    users = ranking.select(als.getUserCol()).distinct().limit(3)
+    users = ranking.select(als.getUserCol()).distinct()
     userSubsetRecs = model.recommendForUserSubset(users, 100)
     # Generate top 10 user recommendations for a specified set of movies
-    tracks = ranking.select(als.getItemCol()).distinct().limit(3)
+    tracks = ranking.select(als.getItemCol()).distinct()
     trackSubSetRecs = model.recommendForItemSubset(tracks, 100)
 
     # meanAP and NCDG
