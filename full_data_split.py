@@ -124,4 +124,18 @@ def main(spark, userID):
     #train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train.parquet')
     #validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
     #ranking = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank.parquet')
+    
+# Only enter this block if we're in main
+if __name__ == "__main__":
+
+    # Create the spark session object
+    spark = SparkSession.builder.appName('part1').getOrCreate()
+    sc = spark.sparkContext
+    # Get user userID from the command line
+    # We need this to access the user's folder in HDFS
+    userID = os.environ['USER']
+
+    # Call our main routine
+    main(spark, userID)
+
 
