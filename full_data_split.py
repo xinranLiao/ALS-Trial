@@ -94,10 +94,10 @@ def main(spark, userID):
         WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL
         ORDER BY user_id ASC, normalized_ranking DESC
         """)
-    # user_norm_rank.show()
+    user_norm_rank.show()
     
-    user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_full.parquet')
-    print("user_norm_rank_full.parquet complete")
+    #user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_full.parquet')
+    #print("user_norm_rank_full.parquet complete")
     
     
     #preprocess split
@@ -112,14 +112,14 @@ def main(spark, userID):
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
     
-    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_full.parquet')
-    print("ALS_train_full.parquet complete")
+    #train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_full.parquet')
+    #print("ALS_train_full.parquet complete")
     
-    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_full.parquet')
-    print("ALS_validation_full.parquet complete")
-    
-    #train.show()
-    #validation.show()
+    #validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_full.parquet')
+    #print("ALS_validation_full.parquet complete")
+
+    train.show()
+    validation.show()
     #train.na.drop()
     #train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train.parquet')
     #validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
