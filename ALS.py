@@ -84,7 +84,7 @@ def main(spark, userID):
             SELECT user_id, track_new_id, ranking, normalized_ranking
             FROM (
             SELECT user_id, track_new_id, ranking,
-                   (ranking - min_ranking) / (max_ranking - min_ranking) as normalized_ranking
+                   ((ranking - min_ranking) / (max_ranking - min_ranking))*100 as normalized_ranking
             FROM (
                 SELECT user_id, track_new_id, count_pop / count_total as ranking,
                        MIN(count_pop / count_total) OVER (PARTITION BY user_id) as min_ranking,
@@ -102,7 +102,7 @@ def main(spark, userID):
         """)
     # user_norm_rank.show()
     
-    user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank.parquet')
+    user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
     print("user_norm_rank.parquet complete")
     
     
@@ -118,12 +118,13 @@ def main(spark, userID):
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
     
-    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train.parquet')
+    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_100.parquet')
     print("ALS_train.parquet complete")
     
-    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation.parquet')
+    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_100.parquet')
     print("ALS_validation.parquet complete")
-    
+
+    '''
     #train.show()
     #validation.show()
     #train.na.drop()
@@ -158,6 +159,7 @@ def main(spark, userID):
 
 
         '''
+    '''
         predictions = model.transform(validation)
 
         
@@ -182,7 +184,7 @@ def main(spark, userID):
         tracks = ranking.select(als.getItemCol()).distinct()
         trackSubSetRecs = model.recommendForItemSubset(tracks, 100)
         '''
-        
+        '''
         # meanAP and NCDG
         from pyspark.mllib.evaluation import RankingMetrics
         
@@ -234,7 +236,7 @@ def main(spark, userID):
 
         
         
-
+'''
 
 # In[37]:
 
