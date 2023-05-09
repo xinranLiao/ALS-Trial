@@ -23,7 +23,7 @@ from pyspark.sql.functions import col, rand, row_number, when
 from pyspark.sql.window import Window
 
 
-def main(spark, args, userID):
+def main(spark, userID):
      
     train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_100.parquet')
     validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_100.parquet')
