@@ -90,7 +90,7 @@ if __name__ == "__main__":
     userID = os.environ['USER']
 
     # Call our main routine
-    main(spark, args, userID)
+    main(spark, userID)
 
 
 # In[ ]:
