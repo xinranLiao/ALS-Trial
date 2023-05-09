@@ -35,7 +35,7 @@ def main(spark, args, userID):
     r = args.rank
     a = args.alpha
     
-    als = ALS(regParam=reg, rank = r, alpha=a, 
+    als = ALS(maxIter=5,regParam=reg, rank = r, alpha=a, 
                           userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
                           coldStartStrategy="drop")
     model = als.fit(train)
