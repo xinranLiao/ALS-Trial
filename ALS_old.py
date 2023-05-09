@@ -33,7 +33,7 @@ def main(spark, userID):
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
     als = ALS(maxIter=5, regParam=0.01, userCol="userId", itemCol="movieId", ratingCol="rating",
           coldStartStrategy="drop")
-    model = als.fit(training)
+    model = als.fit(train)
 
 
     # Prepare the true labels
