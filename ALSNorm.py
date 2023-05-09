@@ -135,6 +135,8 @@ def main(spark, userID):
     regs = [0.1, 10, 100, 1000]
     rs = [50, 100, 150]
     alphas = [0.1, 10, 100, 1000]
+    hyperparams = [regs, rs, alphas]
+    list(itertools.product(*a))
     
     best_ndcg = -100
     best_parameter_sets = []
