@@ -32,7 +32,7 @@ def main(spark, userID):
 
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
-    als = ALS(maxIter=5, regParam = 1.0, rank = 200.0, alpha = 1.0, userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
+    als = ALS(maxIter=5, regParam = 0.1, rank = 150.0, alpha = 1.0, userCol="user_id", itemCol="track_new_id", ratingCol="normalized_ranking",
           coldStartStrategy="drop")
     model = als.fit(train)
 
