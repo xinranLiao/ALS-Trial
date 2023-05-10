@@ -71,7 +71,7 @@ def main(spark, userID):
     
     interaction_new_id.createOrReplaceTempView('interaction_new_id')
 
-     user_rank = spark.sql("""
+    user_rank = spark.sql("""
                     select user_id,track_new_id, count_pop/count_total as ranking
                     from
                     (SELECT distinct user_id,track_new_id,
