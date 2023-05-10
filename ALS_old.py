@@ -25,8 +25,8 @@ from pyspark.sql.window import Window
 
 def main(spark, userID):
      
-    train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_nn.parquet')
-    validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_nn.parquet')
+    train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_0.parquet')
+    validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_0.parquet')
     #ranking = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
     train.show()
 
