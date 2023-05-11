@@ -97,7 +97,7 @@ def main(spark, userID):
                 ) T1
             ) T2
         ) T3
-        WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL
+        WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL AND normalized_ranking > 0
         ORDER BY user_id ASC
         """)
     #user_norm_rank.show()
@@ -119,10 +119,10 @@ def main(spark, userID):
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
 
-    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_with0.parquet')
+    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_without0.parquet')
     print("ALS_train.parquet complete")
     
-    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_with0.parquet')
+    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_without0.parquet')
     print("ALS_validation.parquet complete")
 
 # In[37]:
