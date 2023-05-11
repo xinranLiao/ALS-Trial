@@ -114,19 +114,16 @@ def main(spark, userID):
     df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("random")))
     df = df.withColumn("split_threshold", (col("total_tracks") * 0.8).cast("integer"))
     df = df.withColumn("dataset", when(col("user_index") <= col("split_threshold"), "train").otherwise("validation"))
-    df = df.drop("total_tracks", "user_index", "split_threshold")
+    df = df.drop("total_tracks", "user_index", "split_threshold", "random")
 
     train = df.filter(col("dataset") == "train").drop("dataset")
     validation = df.filter(col("dataset") == "validation").drop("dataset")
 
-    train.show()
-    validation.show()
+    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_with0.parquet')
+    print("ALS_train.parquet complete")
     
-    #train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_100.parquet')
-    #print("ALS_train.parquet complete")
-    
-    #validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_100.parquet')
-    #print("ALS_validation.parquet complete")
+    validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_with0.parquet')
+    print("ALS_validation.parquet complete")
 
 # In[37]:
 
