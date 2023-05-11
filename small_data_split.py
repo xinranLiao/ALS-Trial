@@ -98,7 +98,7 @@ def main(spark, userID):
             ) T2
         ) T3
         WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL
-        ORDER BY user_id ASC DESC
+        ORDER BY user_id ASC
         """)
     user_norm_rank.show()
     
