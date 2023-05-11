@@ -98,13 +98,13 @@ def main(spark, userID):
             ) T2
         ) T3
         WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL
-        ORDER BY user_id ASC, normalized_ranking DESC
+        ORDER BY user_id ASC DESC
         """)
-    # user_norm_rank.show()
+    user_norm_rank.show()
     
-    user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
-    print("user_norm_rank.parquet complete")
-    
+    #user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
+    #print("user_norm_rank.parquet complete")
+    '''
     
     #preprocess split
     df = user_norm_rank
@@ -123,7 +123,7 @@ def main(spark, userID):
     
     validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_100.parquet')
     print("ALS_validation.parquet complete")
-
+    '''
 
 # In[37]:
 
