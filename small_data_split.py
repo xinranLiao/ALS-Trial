@@ -98,9 +98,9 @@ def main(spark, userID):
             ) T2
         ) T3
         WHERE user_id IS NOT NULL AND track_new_id IS NOT NULL AND ranking IS NOT NULL AND normalized_ranking IS NOT NULL
-        ORDER BY user_id ASC, RAND()
+        ORDER BY user_id ASC
         """)
-    user_norm_rank.show()
+    #user_norm_rank.show()
     
     #user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
     #print("user_norm_rank.parquet complete")
