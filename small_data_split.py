@@ -108,9 +108,10 @@ def main(spark, userID):
     
     #preprocess split
     df = user_norm_rank
+    df = df.withColumn("random", rand())
     user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_tracks")
     df = df.join(user_counts, on="user_id")
-    df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("user_id")))
+    df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("random")))
     df = df.withColumn("split_threshold", (col("total_tracks") * 0.8).cast("integer"))
     df = df.withColumn("dataset", when(col("user_index") <= col("split_threshold"), "train").otherwise("validation"))
     df = df.drop("total_tracks", "user_index", "split_threshold")
