@@ -39,7 +39,7 @@ def main(spark, userID):
     st = time.time()
     model = als.fit(train)
     run_time = time.time() - st
-    print("10% data run-time: " + run_time)
+    print("10% data run-time: " + str(run_time))
 
     '''
     # Prepare the true labels
