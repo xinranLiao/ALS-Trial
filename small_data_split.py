@@ -129,7 +129,7 @@ def main(spark, userID):
     print("train size:")
     print(train.count())
     
-    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_30.parquet')
+    train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_50.parquet')
     print("ALS_train.parquet complete")
     
     #validation.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_without0.parquet')
