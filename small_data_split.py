@@ -105,11 +105,12 @@ def main(spark, userID):
     #user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
     #print("user_norm_rank.parquet complete")
     print("original size:")
-    df.count()
+    
     
     
     #preprocess split
     df = user_norm_rank
+    df.count()
     df = df.withColumn("random", rand())
     user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_tracks")
     df = df.join(user_counts, on="user_id")
