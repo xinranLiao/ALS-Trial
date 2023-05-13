@@ -104,7 +104,9 @@ def main(spark, userID):
     
     #user_norm_rank.write.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
     #print("user_norm_rank.parquet complete")
-
+    print("original size:")
+    df.count()
+    
     
     #preprocess split
     df = user_norm_rank
@@ -112,13 +114,17 @@ def main(spark, userID):
     user_counts = df.groupBy("user_id").count().withColumnRenamed("count", "total_tracks")
     df = df.join(user_counts, on="user_id")
     df = df.withColumn("user_index", row_number().over(Window.partitionBy("user_id").orderBy("random")))
-    df = df.withColumn("split_threshold", (col("total_tracks") * 0.1).cast("integer"))
+    df = df.withColumn("split_threshold", (col("total_tracks") * 0.3).cast("integer"))
     df = df.withColumn("dataset", when(col("user_index") <= col("split_threshold"), "train").otherwise("validation"))
     df = df.drop("total_tracks", "user_index", "split_threshold", "random")
-
+    
+   
+    
     train = df.filter(col("dataset") == "train").drop("dataset")
     #validation = df.filter(col("dataset") == "validation").drop("dataset")
-
+    print("train size:")
+    train.count()
+    
     train.write.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_10.parquet')
     print("ALS_train.parquet complete")
     
