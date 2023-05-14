@@ -25,7 +25,7 @@ import time
 
 def main(spark, userID):
      
-    train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_70.parquet')
+    train = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_train_100.parquet')
     validation = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/ALS_validation_without0.parquet')
     #ranking = spark.read.parquet(f'hdfs:/user/xl4703_nyu_edu/user_norm_rank_100.parquet')
     #train.show()
@@ -39,7 +39,7 @@ def main(spark, userID):
     st = time.time()
     model = als.fit(train)
     run_time = time.time() - st
-    print("rank = 100, 70% data run-time: " + str(run_time))
+    print("rank = 100, 100% data run-time: " + str(run_time))
 
     '''
     # Prepare the true labels
